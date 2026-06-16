@@ -16,8 +16,11 @@ if($env:VSINSTALLDIR -eq $null) {
   }
 
   # `-products *` so Build Tools-only installs are detected (vswhere excludes
-  # the BuildTools product by default).
-  $vsDir = (& $vswhere -prerelease -latest -products * -property installationPath)
+  # the BuildTools product by default). `-requires` the MSVC toolchain so SKUs
+  # without a C++ compiler (TestAgent, TeamExplorer, ...) can't be picked by
+  # `-latest`.
+  $vcComponent = if ($script:IsARM64) { "Microsoft.VisualStudio.Component.VC.Tools.ARM64" } else { "Microsoft.VisualStudio.Component.VC.Tools.x86.x64" }
+  $vsDir = (& $vswhere -prerelease -latest -products * -requires $vcComponent -property installationPath)
   if ($vsDir -eq $null) {
     # Check common VS installation paths
     $searchPaths = @(
