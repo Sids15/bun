@@ -15,7 +15,9 @@ if($env:VSINSTALLDIR -eq $null) {
     throw "Command not found: vswhere (did you install Visual Studio?)"
   }
 
-  $vsDir = (& $vswhere -prerelease -latest -property installationPath)
+  # `-products *` so Build Tools-only installs are detected (vswhere excludes
+  # the BuildTools product by default).
+  $vsDir = (& $vswhere -prerelease -latest -products * -property installationPath)
   if ($vsDir -eq $null) {
     # Check common VS installation paths
     $searchPaths = @(
